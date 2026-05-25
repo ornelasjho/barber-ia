@@ -1,11 +1,42 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
 type AuthMode = "login" | "signup";
 
+function getAuthErrorMessage(error: AuthError): string {
+  const msg = error.message.toLowerCase();
+
+  if (msg.includes("invalid login credentials")) {
+    return "E-mail ou senha incorretos.";
+  }
+  if (msg.includes("email not confirmed")) {
+    return "Confirme seu e-mail antes de fazer login.";
+  }
+  if (msg.includes("user already registered")) {
+    return "Este e-mail já está cadastrado.";
+  }
+  if (msg.includes("password") && msg.includes("6")) {
+    return "A senha deve ter no mínimo 6 caracteres.";
+  }
+  if (msg.includes("invalid email")) {
+    return "E-mail inválido.";
+  }
+  if (msg.includes("rate limit")) {
+    return "Muitas tentativas. Aguarde um momento e tente novamente.";
+  }
+  if (msg.includes("invalid api key")) {
+    return "Chave da API inválida. Verifique NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY no .env.local (chave completa, sem ...).";
+  }
+
+  return error.message;
+}
+
 export default function AuthPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,25 +61,47 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: email.trim(),
           password,
         });
-        if (error) throw error;
-        setMessage({ type: "success", text: "Login realizado com sucesso!" });
+
+        if (error) {
+          setMessage({ type: "error", text: getAuthErrorMessage(error) });
+          return;
+        }
+
+        router.push("/dashboard");
+        router.refresh();
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
           password,
         });
-        if (error) throw error;
+
+        if (error) {
+          setMessage({ type: "error", text: getAuthErrorMessage(error) });
+          return;
+        }
+
+        if (data.user?.identities?.length === 0) {
+          setMessage({
+            type: "error",
+            text: "Este e-mail já está cadastrado.",
+          });
+          return;
+        }
+
         setMessage({
           type: "success",
-          text: "Cadastro realizado! Verifique seu e-mail para confirmar a conta.",
+          text: "Cadastro realizado com sucesso! Você já pode fazer login.",
         });
+        setPassword("");
       }
     } catch (err) {
       const text =
-        err instanceof Error ? err.message : "Ocorreu um erro inesperado.";
+        err instanceof Error
+          ? err.message
+          : "Ocorreu um erro inesperado. Tente novamente.";
       setMessage({ type: "error", text });
     } finally {
       setLoading(false);
