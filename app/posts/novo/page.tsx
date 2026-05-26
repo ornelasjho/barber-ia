@@ -28,8 +28,13 @@ export default function NovoPost() {
     e.preventDefault()
     setLoading(true)
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return router.push('/login')
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (!user) {
+      alert('Usuário não logado! Erro: ' + userError?.message)
+      setLoading(false)
+      return
+    }
 
     let foto_url = null
 
@@ -41,7 +46,7 @@ export default function NovoPost() {
         .upload(path, foto)
 
       if (uploadError) {
-        alert('Erro ao enviar foto')
+        alert('Erro ao enviar foto: ' + uploadError.message)
         setLoading(false)
         return
       }
@@ -58,11 +63,12 @@ export default function NovoPost() {
     })
 
     if (error) {
-      alert('Erro ao salvar post')
+      alert('Erro ao salvar: ' + error.message)
       setLoading(false)
       return
     }
 
+    alert('Post publicado com sucesso!')
     router.push('/dashboard')
   }
 
