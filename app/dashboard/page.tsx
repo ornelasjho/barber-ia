@@ -27,8 +27,18 @@ const menuItems = [
     ),
   },
   {
+    label: "Posts",
+    href: "/posts",
+    active: false,
+    icon: (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
     label: "Criar Post",
-    href: "/criar-post",
+    href: "/posts/novo",
     active: false,
     icon: (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -187,7 +197,7 @@ export default function DashboardPage() {
 
         <div className="border-t border-white/10 p-4">
           <Link
-            href="/criar-post"
+            href="/posts/novo"
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2979ff] to-[#1565c0] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#2979ff]/30 transition hover:from-[#1c6ae6] hover:to-[#0d47a1]"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -249,7 +259,7 @@ export default function DashboardPage() {
             </div>
 
             <Link
-              href="/criar-post"
+              href="/posts/novo"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2979ff] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#2979ff]/30 transition hover:bg-[#1c6ae6] sm:shrink-0"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
